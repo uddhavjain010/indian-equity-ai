@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title>Real-Time Indian Stock Price Prediction & Signal Dashboard | LSTM + XGBoost</title>
+  <meta name="description" content="Academic Quantitative Finance Platform for Indian NSE/BSE Equities using Stacked LSTM Neural Networks, XGBoost, and Walk-Forward Backtesting.">
+  <meta name="keywords" content="Stock Prediction, Indian Equities, NSE, BSE, Nifty 50, LSTM, XGBoost, Streamlit, Machine Learning, Quantitative Finance, Technical Analysis">
+  <meta name="author" content="Uddhav Jain">
+
+  <!-- Open Graph / Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://indian-equity-ai-26pj92ewt37pumd7vmhk4d.streamlit.app">
+  <meta property="og:title" content="Real-Time Indian Stock Price Prediction & Signal Dashboard">
+  <meta property="og:description" content="Dual-Engine Machine Learning (LSTM + XGBoost) on NSE/BSE Equities with Walk-Forward Backtesting and Live Streamlit Dashboard.">
+
+  <!-- Favicon via inline SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M6 22 L13 14 L18 18 L26 8' fill='none' stroke='%2310b981' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='26' cy='8' r='2.5' fill='%2338bdf8'/%3E%3C/svg%3E">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Decorative Grid & Glows -->
+  <div class="glow-orb glow-orb-1" aria-hidden="true"></div>
+  <div class="glow-orb glow-orb-2" aria-hidden="true"></div>
+  <div class="background-grid" aria-hidden="true"></div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#hero" class="brand-logo" aria-label="Home">
+        <span class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+            <polyline points="16 7 22 7 22 13"></polyline>
+          </svg>
+        </span>
+        <span class="brand-text">IndianEquity<span class="gradient-text">AI</span></span>
+        <span class="market-pill"><span class="pulse-dot"></span> NSE / BSE</span>
+      </a>
+
+      <nav class="nav-links" id="nav-menu">
+        <a href="#overview" class="nav-link">Overview</a>
+        <a href="#pipeline" class="nav-link">Pipeline</a>
+        <a href="#models" class="nav-link">Models</a>
+        <a href="#backtesting" class="nav-link">Backtesting</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#tech-stack" class="nav-link">Tech Stack</a>
+        <a href="#disclaimer" class="nav-link nav-link-disclaimer">Disclaimer</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="https://github.com/uddhavjain010/indian-equity-ai" target="_blank" rel="noopener noreferrer" class="btn btn-secondary nav-github-btn" title="View Source on GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://indian-equity-ai-26pj92ewt37pumd7vmhk4d.streamlit.app" target="_blank" rel="noopener noreferrer" class="btn btn-primary nav-app-btn">
+          <span>Live Dashboard</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </a>
+        <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. HERO SECTION -->
+    <section class="hero-section" id="hero">
+      <div class="container hero-container">
+        <div class="hero-content">
+          <div class="badge-wrapper">
+            <span class="status-badge">
+              <span class="badge-icon">🎓</span> Academic Quantitative Research
+            </span>
+            <span class="status-badge status-badge-accent">
+              <span class="pulse-dot-green"></span> Nifty 50 Real-Time Feed
+            </span>
+          </div>
+
+          <h1 class="hero-title">
+            Real-Time Indian Stock Price Prediction &amp;
+            <span class="gradient-text">Signal Dashboard</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            A state-of-the-art academic research platform combining <strong>Stacked LSTM Deep Neural Networks</strong> and <strong>XGBoost Regressors</strong> for next-day close prediction, trend directional classification, and confluence signal generation on Indian NSE/BSE equities.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="https://indian-equity-ai-26pj92ewt37pumd7vmhk4d.streamlit.app" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg pulse-glow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Open Live Dashboard</span>
+            </a>
+            <a href="https://github.com/uddhavjain010/indian-equity-ai" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              <span>View Source Code</span>
+            </a>
+          </div>
+
+          <!-- Academic Notice Pill -->
+          <div class="academic-banner">
+            <span class="academic-icon">🔬</span>
+            <span>Academic Research Project: Strictly non-commercial and adheres to leak-free walk-forward validation protocols.</span>
+          </div>
+        </div>
+
+        <!-- Hero Terminal/Dashboard Preview Card -->
+        <div class="hero-visual">
+          <div class="card terminal-card">
+            <div class="terminal-header">
+              <div class="window-controls">
+                <span class="control close"></span>
+                <span class="control minimize"></span>
+                <span class="control expand"></span>
+              </div>
+              <div class="terminal-title">RELIANCE.NS • NSE Benchmark Preview</div>
+              <div class="terminal-status"><span class="pulse-dot"></span> LIVE TICK</div>
+            </div>
+
+            <div class="terminal-body">
+              <div class="market-quote-bar">
+                <div class="quote-item">
+                  <div class="quote-label">LAST TRADED PRICE</div>
+                  <div class="quote-val quote-up">₹2,987.40 <span class="quote-delta">+1.42%</span></div>
+                </div>
+                <div class="quote-item">
+                  <div class="quote-label">VOLUME</div>
+                  <div class="quote-val">7,842,109</div>
+                </div>
+                <div class="quote-item">
+                  <div class="quote-label">SIGNAL CONFLUENCE</div>
+                  <div class="signal-tag signal-buy">BUY (78.4% Conf)</div>
+                </div>
+              </div>
+
+              <!-- Interactive Mock Chart SVG -->
+              <div class="mock-chart-container">
+                <svg class="mock-chart" viewBox="0 0 500 180" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+                      <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+                    </linearGradient>
+                    <linearGradient id="predGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"/>
+                      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Gridlines -->
+                  <line x1="0" y1="45" x2="500" y2="45" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3"/>
+                  <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3"/>
+                  <line x1="0" y1="135" x2="500" y2="135" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3"/>
+                  
+                  <!-- Area Fill -->
+                  <path d="M 10 140 Q 70 120, 130 130 T 250 85 T 380 75 L 380 180 L 10 180 Z" fill="url(#areaGradient)"/>
+                  
+                  <!-- Actual Price Line -->
+                  <path d="M 10 140 Q 70 120, 130 130 T 250 85 T 380 75" fill="none" stroke="#10b981" stroke-width="2.5"/>
+                  
+                  <!-- Projected Prediction Path (LSTM + XGBoost) -->
+                  <path d="M 380 75 Q 430 55, 485 45" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="4,4"/>
+                  
+                  <!-- Points -->
+                  <circle cx="380" cy="75" r="4.5" fill="#10b981" stroke="#0f172a" stroke-width="2"/>
+                  <circle cx="485" cy="45" r="5" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/>
+                </svg>
+                <div class="chart-annotation historical-tag">Historical Market Path</div>
+                <div class="chart-annotation forecast-tag">T+1 Dual Ensemble Forecast</div>
+              </div>
+
+              <!-- Predictions breakdown grid -->
+              <div class="model-readout-grid">
+                <div class="readout-box">
+                  <div class="readout-header">
+                    <span class="readout-dot lstm-dot"></span>
+                    <span>LSTM Network</span>
+                  </div>
+                  <div class="readout-val">₹3,012.80</div>
+                  <div class="readout-sub text-up">+0.85% (RMSE: 34.2)</div>
+                </div>
+                <div class="readout-box">
+                  <div class="readout-header">
+                    <span class="readout-dot xgb-dot"></span>
+                    <span>XGBoost Tree</span>
+                  </div>
+                  <div class="readout-val">₹3,008.50</div>
+                  <div class="readout-sub text-up">+0.71% (MAPE: 1.12%)</div>
+                </div>
+                <div class="readout-box">
+                  <div class="readout-header">
+                    <span class="readout-dot ensemble-dot"></span>
+                    <span>Directional Consensus</span>
+                  </div>
+                  <div class="readout-val text-green">BULLISH 98.2%</div>
+                  <div class="readout-sub">Confluence Verified</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Strip -->
+      <div class="container">
+        <div class="metrics-strip">
+          <div class="metric-item">
+            <div class="metric-number">NIFTY 50</div>
+            <div class="metric-desc">Curated Indian Equities Universe</div>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <div class="metric-number">0.0%</div>
+            <div class="metric-desc">Zero Future Lookahead Leakage</div>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <div class="metric-number">DUAL-ML</div>
+            <div class="metric-desc">Sequential LSTM + Tabular XGBoost</div>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <div class="metric-number">WALK-FORWARD</div>
+            <div class="metric-desc">Out-of-Sample Expanding Window</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. PROJECT OVERVIEW SECTION -->
+    <section class="section" id="overview">
+      <div class="container">
+        <div class="section-badge">System Architecture</div>
+        <h2 class="section-title">End-to-End Quantitative Machine Learning</h2>
+        <p class="section-subtitle">
+          Designed specifically for Indian equities, bridging the gap between raw exchange data feeds, rigorous statistical preprocessing, deep learning, and rule-based trade signal intelligence.
+        </p>
+
+        <div class="overview-grid">
+          <!-- Card 1 -->
+          <div class="overview-card">
+            <div class="card-icon-box cyan">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </div>
+            <h3 class="card-title">Real-Time Indian Market Data</h3>
+            <p class="card-text">
+              Seamlessly integrates <strong>NSE and BSE</strong> listed equities through dual providers: robust daily historical feeds via Yahoo Finance and low-latency tick streams via <strong>Upstox V3 Protobuf WebSocket</strong> feeds.
+            </p>
+            <ul class="card-bullets">
+              <li>Comprehensive Nifty 50 ticker universe</li>
+              <li>Data validation against anomalies &amp; splits</li>
+              <li>Pluggable abstraction provider architecture</li>
+            </ul>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="overview-card">
+            <div class="card-icon-box emerald">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <path d="M2 17l10 5 10-5"></path>
+                <path d="M2 12l10 5 10-5"></path>
+              </svg>
+            </div>
+            <h3 class="card-title">Dual Machine Learning Core</h3>
+            <p class="card-text">
+              Leverages the distinct complementary strengths of <strong>Deep Recurrent Networks (LSTM)</strong> for chronological time dependencies and <strong>Gradient Boosted Trees (XGBoost)</strong> for complex technical indicators.
+            </p>
+            <ul class="card-bullets">
+              <li>60-day rolling sequence lookback windows</li>
+              <li>Gradient boosting over non-linear feature maps</li>
+              <li>Weighted ensemble next-day target projection</li>
+            </ul>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="overview-card">
+            <div class="card-icon-box indigo">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+            </div>
+            <h3 class="card-title">Leak-Free Walk-Forward Backtesting</h3>
+            <p class="card-text">
+              Eliminates the dangerous lookahead biases common in naive backtests. Uses expanding-window chronological splits where all feature scalers are fitted exclusively on preceding historical data.
+            </p>
+            <ul class="card-bullets">
+              <li>Strict out-of-sample forward evaluation</li>
+              <li>No data shuffling or forward leakage</li>
+              <li>Academic evaluation metrics: RMSE, MAE, MAPE</li>
+            </ul>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="overview-card">
+            <div class="card-icon-box amber">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 14 14"></polyline>
+              </svg>
+            </div>
+            <h3 class="card-title">Confluence Signal Engine</h3>
+            <p class="card-text">
+              Synthesizes quantitative price projections with classical technical analysis rules to issue robust <strong>BUY, HOLD, or SELL</strong> research signals with clear explainability and confidence scoring.
+            </p>
+            <ul class="card-bullets">
+              <li>RSI momentum and MACD trend verification</li>
+              <li>Ensemble agreement thresholds</li>
+              <li>Transparent educational research insights</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. HOW IT WORKS: VISUAL PIPELINE -->
+    <section class="section section-alt" id="pipeline">
+      <div class="container">
+        <div class="section-badge">Dataflow Pipeline</div>
+        <h2 class="section-title">How The System Works</h2>
+        <p class="section-subtitle">
+          From exchange tick ingestion to interactive visualization — click any pipeline stage to inspect the technical methodology.
+        </p>
+
+        <!-- Interactive Pipeline Stages -->
+        <div class="pipeline-wrapper">
+          <div class="pipeline-track">
+            <!-- Stage 1 -->
+            <button class="pipeline-node active" data-step="1">
+              <div class="node-circle">01</div>
+              <div class="node-label">Market Data</div>
+              <div class="node-sub">NSE / BSE Ingestion</div>
+            </button>
+            <div class="pipeline-connector"></div>
+
+            <!-- Stage 2 -->
+            <button class="pipeline-node" data-step="2">
+              <div class="node-circle">02</div>
+              <div class="node-label">Feature Engineering</div>
+              <div class="node-sub">Indicators &amp; Scaling</div>
+            </button>
+            <div class="pipeline-connector"></div>
+
+            <!-- Stage 3 -->
+            <button class="pipeline-node" data-step="3">
+              <div class="node-circle">03</div>
+              <div class="node-label">Dual ML Engines</div>
+              <div class="node-sub">LSTM + XGBoost</div>
+            </button>
+            <div class="pipeline-connector"></div>
+
+            <!-- Stage 4 -->
+            <button class="pipeline-node" data-step="4">
+              <div class="node-circle">04</div>
+              <div class="node-label">Prediction</div>
+              <div class="node-sub">Ensemble Synthesis</div>
+            </button>
+            <div class="pipeline-connector"></div>
+
+            <!-- Stage 5 -->
+            <button class="pipeline-node" data-step="5">
+              <div class="node-circle">05</div>
+              <div class="node-label">Signal Engine</div>
+              <div class="node-sub">Confluence Rules</div>
+            </button>
+            <div class="pipeline-connector"></div>
+
+            <!-- Stage 6 -->
+            <button class="pipeline-node" data-step="6">
+              <div class="node-circle">06</div>
+              <div class="node-label">Dashboard</div>
+              <div class="node-sub">Streamlit UI</div>
+            </button>
+          </div>
+
+          <!-- Dynamic Detail Box for Selected Pipeline Step -->
+          <div class="pipeline-details-card" id="pipeline-details">
+            <div class="pipeline-detail-header">
+              <span class="step-badge" id="step-badge">Stage 01 • Data Layer</span>
+              <h3 class="step-title" id="step-title">Market Data Ingestion &amp; Validation</h3>
+            </div>
+            <p class="step-desc" id="step-desc">
+              Historical OHLCV bars are retrieved for Indian Nifty 50 tickers via the Yahoo Finance provider or real-time tick feeds via Upstox V3 Market Data Feed. An automated quantitative integrity checker validates against negative volumes, invalid zero prices, duplicate timestamps, and stock split anomalies.
+            </p>
+            <div class="step-meta-grid">
+              <div class="step-meta-item">
+                <span class="meta-label">Primary Sources:</span>
+                <span class="meta-value" id="step-meta-1">YFinance + Upstox V3 Protobuf</span>
+              </div>
+              <div class="step-meta-item">
+                <span class="meta-label">Supported Equities:</span>
+                <span class="meta-value" id="step-meta-2">RELIANCE.NS, TCS.NS, INFY.NS, HDFCBANK.NS + Nifty 50</span>
+              </div>
+              <div class="step-meta-item">
+                <span class="meta-label">Integrity Guarantees:</span>
+                <span class="meta-value" id="step-meta-3">Monotonic chronological index &amp; gap validation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. MODELS ARCHITECTURE SECTION -->
+    <section class="section" id="models">
+      <div class="container">
+        <div class="section-badge">Deep Learning &amp; Gradient Boosting</div>
+        <h2 class="section-title">Dual Machine Learning Architecture</h2>
+        <p class="section-subtitle">
+          Combining the sequential memory of Recurrent Neural Networks with the gradient-boosted decision surfaces of tree ensembles.
+        </p>
+
+        <div class="models-comparison-grid">
+          <!-- Model Card 1: LSTM -->
+          <div class="model-box model-lstm">
+            <div class="model-header">
+              <div class="model-badge">Deep Neural Network</div>
+              <h3 class="model-name">Stacked LSTM Network</h3>
+              <p class="model-tagline">Optimized for Long-Range Sequential Autocorrelation</p>
+            </div>
+            <div class="model-body">
+              <p>
+                Long Short-Term Memory (LSTM) cells solve the vanishing gradient limitation of standard RNNs through specialized input, forget, and output gates. The network processes a <strong>60-day rolling sequence</strong> of normalized multivariate market states to project the continuous next-day closing price.
+              </p>
+              <div class="spec-list">
+                <div class="spec-row">
+                  <span class="spec-name">Input Shape:</span>
+                  <span class="spec-val font-mono">(batch, 60 timesteps, n_features)</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Layer 1:</span>
+                  <span class="spec-val font-mono">64 Units (return_sequences=True)</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Dropout Regularization:</span>
+                  <span class="spec-val font-mono">20% Dropout between layers</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Layer 2:</span>
+                  <span class="spec-val font-mono">32 Units (Dense bottleneck)</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Optimizer &amp; Loss:</span>
+                  <span class="spec-val font-mono">Adam (lr=0.001) with Huber/MSE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Model Card 2: XGBoost -->
+          <div class="model-box model-xgb">
+            <div class="model-header">
+              <div class="model-badge">Gradient Boosted Trees</div>
+              <h3 class="model-name">XGBoost Regressor</h3>
+              <p class="model-tagline">Optimized for Non-Linear Tabular Feature Interactions</p>
+            </div>
+            <div class="model-body">
+              <p>
+                Extreme Gradient Boosting builds an ensemble of shallow decision trees in a stage-wise manner, minimizing a regularized objective function. It excels at discovering non-linear threshold rules across momentum, volatility, and volume indicators without assuming linearity.
+              </p>
+              <div class="spec-list">
+                <div class="spec-row">
+                  <span class="spec-name">Feature Inputs:</span>
+                  <span class="spec-val font-mono">Technical Indicators + 5 Lagged Return terms</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Max Tree Depth:</span>
+                  <span class="spec-val font-mono">5 (prevents leaf overfitting)</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Estimators &amp; Rate:</span>
+                  <span class="spec-val font-mono">200 Estimators, Learning Rate 0.05</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Subsample / Colsample:</span>
+                  <span class="spec-val font-mono">0.8 / 0.8 stochastic sampling</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Regularization:</span>
+                  <span class="spec-val font-mono">L1 (alpha=0.1) &amp; L2 (lambda=1.0)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evaluation Metrics Strip -->
+        <div class="metrics-evaluation-card">
+          <h4 class="metrics-eval-title">Model Evaluation &amp; Statistical Validation Metrics</h4>
+          <p class="metrics-eval-subtitle">Every model checkpoint is strictly evaluated on out-of-sample data using four quantitative metrics:</p>
+          <div class="eval-metrics-grid">
+            <div class="eval-metric-box">
+              <div class="eval-code">RMSE</div>
+              <div class="eval-name">Root Mean Squared Error</div>
+              <div class="eval-desc">Penalizes large outlier forecast errors heavily, critical for portfolio downside management.</div>
+            </div>
+            <div class="eval-metric-box">
+              <div class="eval-code">MAE</div>
+              <div class="eval-name">Mean Absolute Error</div>
+              <div class="eval-desc">Measures the average magnitude of absolute rupee price discrepancies in Indian Rupees (INR).</div>
+            </div>
+            <div class="eval-metric-box">
+              <div class="eval-code">MAPE</div>
+              <div class="eval-name">Mean Absolute % Error</div>
+              <div class="eval-desc">Scale-independent relative error percentage, allowing comparisons across low and high nominal price stocks.</div>
+            </div>
+            <div class="eval-metric-box">
+              <div class="eval-code">DIR ACC</div>
+              <div class="eval-name">Directional Accuracy (%)</div>
+              <div class="eval-desc">Percentage of trading sessions where the predicted price movement direction (Up/Down) matched reality.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. BACKTESTING & LEAK-FREE VALIDATION -->
+    <section class="section section-alt" id="backtesting">
+      <div class="container">
+        <div class="section-badge">Methodology &amp; Rigor</div>
+        <h2 class="section-title">Walk-Forward Validation &amp; Backtesting</h2>
+        <p class="section-subtitle">
+          Standard random train-test splitting introduces catastrophic lookahead bias in time series. Our platform utilizes strict expanding-window walk-forward validation.
+        </p>
+
+        <div class="backtest-grid">
+          <div class="backtest-card">
+            <div class="card-icon-box green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <h3>Expanding Window Validation</h3>
+            <p>
+              At each fold, the model trains strictly on data up to time <code>T</code> and predicts out-of-sample point <code>T+1</code>. The window expands chronologically, simulating the exact real-world scenario of an algorithmic fund trading daily.
+            </p>
+          </div>
+
+          <div class="backtest-card">
+            <div class="card-icon-box cyan">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <h3>Zero Future-Data Leakage</h3>
+            <p>
+              Data normalization scalers (MinMaxScaler / StandardScaler) are fitted <em>solely</em> on the training portion of the dataset. Testing and validation rows are transformed using pre-fitted parameters without peeking into future distributions.
+            </p>
+          </div>
+
+          <div class="backtest-card">
+            <div class="card-icon-box amber">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <h3>Academic Cost Disclaimer</h3>
+            <p>
+              In line with academic research standards, current walk-forward simulations focus on statistical price and directional prediction. Brokerage commissions, STT, exchange turnover fees, and execution slippage are deliberately excluded from this theoretical model.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. FEATURE ENGINEERING SHOWCASE -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-badge">Quantitative Inputs</div>
+        <h2 class="section-title">Technical Indicators &amp; Engineered Features</h2>
+        <p class="section-subtitle">
+          Over 25 causal quantitative indicators computed on open, high, low, close, and volume series without lookahead leakage.
+        </p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-tag">Momentum</div>
+            <h3 class="feature-title">RSI (14-period)</h3>
+            <p class="feature-desc">Relative Strength Index measures the speed and change of price movements to identify overbought (>70) and oversold (<30) conditions.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-tag">Trend Following</div>
+            <h3 class="feature-title">MACD (12, 26, 9)</h3>
+            <p class="feature-desc">Moving Average Convergence Divergence tracks trend strength, momentum shifts, and signal line crossovers.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-tag">Moving Averages</div>
+            <h3 class="feature-title">EMA (9, 21, 50, 200)</h3>
+            <p class="feature-desc">Exponential Moving Averages provide dynamic support/resistance levels with heavier weighting on recent price bars.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-tag">Volatility</div>
+            <h3 class="feature-title">Bollinger Bands (20, 2σ)</h3>
+            <p class="feature-desc">Upper and lower standard deviation envelopes around a 20-day SMA quantify statistical price dispersion and squeeze breakouts.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-tag">Volume Flow</div>
+            <h3 class="feature-title">Volume SMA &amp; OBV</h3>
+            <p class="feature-desc">On-Balance Volume and volume moving averages confirm price action by quantifying institutional accumulation vs distribution.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-tag">Time Series</div>
+            <h3 class="feature-title">Lagged Returns (t-1 to t-5)</h3>
+            <p class="feature-desc">Autoregressive percentage return lags across the previous 5 trading days capture short-term mean-reversion and momentum shocks.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-tag">Price Action</div>
+            <h3 class="feature-title">OHLC Volatility Ratios</h3>
+            <p class="feature-desc">Intraday range (High - Low) / Close and overnight gap (Open - Prev Close) capture intraday expansion dynamics.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-tag">Target Variable</div>
+            <h3 class="feature-title">Next-Day Close (t+1)</h3>
+            <p class="feature-desc">The primary prediction target: tomorrow's closing price and binary direction, strictly shifted by -1 row during dataset generation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. TECHNOLOGY STACK -->
+    <section class="section section-alt" id="tech-stack">
+      <div class="container">
+        <div class="section-badge">Modern Stack</div>
+        <h2 class="section-title">Technology &amp; Frameworks</h2>
+        <p class="section-subtitle">
+          Built with battle-tested open-source libraries in the Python scientific and machine learning ecosystem.
+        </p>
+
+        <div class="tech-grid">
+          <div class="tech-card">
+            <div class="tech-icon-circle">🐍</div>
+            <h3 class="tech-name">Python 3.12</h3>
+            <p class="tech-role">Core Runtime</p>
+            <p class="tech-desc">Robust typed quantitative scripting and backend data processing engine.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">⚡</div>
+            <h3 class="tech-name">Streamlit</h3>
+            <p class="tech-role">Web Application</p>
+            <p class="tech-desc">Interactive reactive dashboard deployed on Streamlit Community Cloud.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">🧠</div>
+            <h3 class="tech-name">TensorFlow / Keras</h3>
+            <p class="tech-role">Deep Learning</p>
+            <p class="tech-desc">Stacked LSTM recurrent neural network training, inference, and serialization.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">🌲</div>
+            <h3 class="tech-name">XGBoost</h3>
+            <p class="tech-role">Gradient Boosting</p>
+            <p class="tech-desc">High-performance tree boosting for tabular technical indicator regression.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">🐼</div>
+            <h3 class="tech-name">Pandas</h3>
+            <p class="tech-role">Data Wrangling</p>
+            <p class="tech-desc">High-speed time-series dataframe manipulation, resampling, and alignment.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">🔢</div>
+            <h3 class="tech-name">NumPy</h3>
+            <p class="tech-role">Vectorized Math</p>
+            <p class="tech-desc">Array operations, 3D tensor sequence preparation, and matrix math.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">🔬</div>
+            <h3 class="tech-name">Scikit-learn</h3>
+            <p class="tech-role">Preprocessing &amp; Metrics</p>
+            <p class="tech-desc">MinMaxScaler pipelines and quantitative error evaluation metrics.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">📈</div>
+            <h3 class="tech-name">yfinance</h3>
+            <p class="tech-role">Historical Feed</p>
+            <p class="tech-desc">Automated ingestion of daily NSE/BSE adjusted OHLCV price histories.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">📡</div>
+            <h3 class="tech-name">Upstox V3</h3>
+            <p class="tech-role">Protobuf Feed</p>
+            <p class="tech-desc">Real-time WebSocket market data feed decoded with binary Google Protobuf.</p>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-icon-circle">📊</div>
+            <h3 class="tech-name">Plotly</h3>
+            <p class="tech-role">Financial Charts</p>
+            <p class="tech-desc">Interactive candlestick charts, volume overlays, and prediction comparisons.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. DISCLAIMER SECTION -->
+    <section class="section" id="disclaimer">
+      <div class="container">
+        <div class="disclaimer-card">
+          <div class="disclaimer-header">
+            <div class="disclaimer-icon-badge">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="disclaimer-title">Academic &amp; Educational Research Disclaimer</h3>
+              <p class="disclaimer-tagline">Regulatory and Quantitative Compliance Notice</p>
+            </div>
+          </div>
+          <div class="disclaimer-body">
+            <p class="disclaimer-highlight">
+              "This project is for educational and academic research purposes only. Predictions and signals are not financial advice and should not be used as a basis for real-world investment decisions."
+            </p>
+            <p class="disclaimer-details">
+              Stock markets involve substantial risk of loss. The machine learning models (LSTM, XGBoost) and technical indicators presented here are experimental academic implementations designed to demonstrate quantitative forecasting concepts and walk-forward backtesting methodologies on Indian equities (NSE/BSE). The authors and contributors bear no responsibility for any trading or investment decisions made based on this software.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 9. FOOTER -->
+  <footer class="footer">
+    <div class="container footer-container">
+      <div class="footer-brand-col">
+        <div class="brand-logo footer-logo">
+          <span class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+              <polyline points="16 7 22 7 22 13"></polyline>
+            </svg>
+          </span>
+          <span class="brand-text">IndianEquity<span class="gradient-text">AI</span></span>
+        </div>
+        <p class="footer-desc">
+          Real-Time Indian Stock Price Prediction and Signal Dashboard using Stacked LSTM and XGBoost on NSE/BSE Equities.
+        </p>
+        <div class="footer-badge">Built for academic &amp; quantitative finance research</div>
+      </div>
+
+      <div class="footer-links-col">
+        <h4 class="footer-heading">Platform</h4>
+        <ul class="footer-nav">
+          <li><a href="https://indian-equity-ai-26pj92ewt37pumd7vmhk4d.streamlit.app" target="_blank" rel="noopener noreferrer">Live Streamlit App ↗</a></li>
+          <li><a href="https://github.com/uddhavjain010/indian-equity-ai" target="_blank" rel="noopener noreferrer">GitHub Repository ↗</a></li>
+          <li><a href="#pipeline">System Pipeline</a></li>
+          <li><a href="#models">Dual ML Models</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <h4 class="footer-heading">Quantitative Concepts</h4>
+        <ul class="footer-nav">
+          <li><a href="#features">Technical Indicators</a></li>
+          <li><a href="#backtesting">Walk-Forward Validation</a></li>
+          <li><a href="#tech-stack">Technology Stack</a></li>
+          <li><a href="#disclaimer">Compliance Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <div class="copyright">
+        &copy; 2026 <strong>Real-Time Indian Stock Price Prediction &amp; Signal Dashboard</strong>. Developed by Uddhav Jain.
+      </div>
+      <div class="footer-actions">
+        <a href="#hero" class="back-to-top" aria-label="Back to top">
+          <span>Top</span> ↑
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
