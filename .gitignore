@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.venv
+env/
+venv/
+ENV/
+
+# Environment variables
+.env
+
+# Data and Artifacts
+data/raw/*.csv
+data/processed/*.csv
+data/backtests/*.csv
+models/lstm/*
+models/xgboost/*
+!models/lstm/.gitkeep
+!models/xgboost/.gitkeep
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/backtests/.gitkeep
+
+# Logs
+logs/*.log
+!logs/.gitkeep
+
+# IDE and OS
+.DS_Store
+.vscode/
+.idea/
+*.ipynb_checkpoints/
